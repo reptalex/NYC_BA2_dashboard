@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "nbss_aseasonal <- function(x,filtering=FALSE,dispersion=NULL){\n  nb_model <- function(x, pars){\n    model_nb <- SSModel(x ~ SSMtrend(2, Q=list(0, NA),\n                                     P1=diag(c(10, 1)),\n                                     a1=c(0, 0),\n                                     state_names=c(\"level\", \"trend\")),\n                        u=rep(exp(pars[1]), length(x)), distribution=\"negative binomial\")\n    fit <- fitSSM(model_nb, c(0), method=\"L-BFGS-B\", control=list(maxit=200))\n    return(fit)\n  }\n  \n  if (is.null(dispersion)){\n    logLik_nb <- function(x, pars){\n      fit <- nb_model(x, pars)\n      ll <- logLik(fit$model, marginal = TRUE)\n      return(-ll)\n    }\n    \n    res <- tryCatch(optim(c(-1), function(y) logLik_nb(x, y), method=\"Brent\", lower=-2, upper=2) , error=function(e) NULL)\n    if (is.null(res)) return(NULL)\n    fit <- nb_model(x, res$par)\n  } else {\n    fit <- tryCatch(nb_model(x,dispersion),error=function(e) NULL)\n    res <- NULL\n    res$par[1] <- dispersion\n  }\n  if (filtering==TRUE){\n    sm_signal <- KFS(fit$model, filtering=\"signal\",smoothing='none')\n    sm_state <- KFS(fit$model, filtering=\"state\",smoothing='none')\n    \n    out <- data.frame(p2.5_position = c(qnorm(0.025, sm_state$a[-1,'level'], (sqrt(sm_state$P[1,1,-1])))), \n                      p97.5_position = c(qnorm(0.975, sm_state$a[-1,'level'],(sqrt(sm_state$P[1,1,-1])))), \n                      mean_position = (c(sm_state$a[-1,'level'])),\n                      p2.5_growth_rate = c(qnorm(0.025, sm_state$a[-1,'trend'], (sqrt(sm_state$P[2,2,-1])))), \n                      p97.5_growth_rate = c(qnorm(0.975, sm_state$a[-1,'trend'], (sqrt(sm_state$P[2,2,-1])))),\n                      p25_growth_rate = c(qnorm(0.25, sm_state$a[-1,'trend'], (sqrt(sm_state$P[2,2,-1])))), \n                      p75_growth_rate = c(qnorm(0.75, sm_state$a[-1,'trend'], (sqrt(sm_state$P[2,2,-1])))), \n                      growth_rate = (c(sm_state$a[-1,'trend'])),\n                      percentile_0_growth_rate =c(pnorm(0, sm_state$a[-1,'trend'], (sqrt(sm_state$P[2,2,-1])))),\n                      growth_rate = (c(sm_state$a[-1,'trend'])),\n                      dispersion=res$par[1], \n                      z_score_growth_rate = c(sm_state$a[-1,2]/sqrt(sm_state$P[2,2,-1])))\n  } else {\n    sm_signal <- KFS(fit$model, smoothing=\"signal\")\n    sm_state <- KFS(fit$model, smoothing=\"state\")\n    out <- data.frame(p2.5_signal = exp(qnorm(0.025, sm_signal$thetahat, sqrt(c(sm_signal$V_theta)))), \n                      p97.5_signal = exp(qnorm(0.975, sm_signal$thetahat, sqrt(c(sm_signal$V_theta)))), \n                      mean_signal = exp(sm_signal$thetahat), \n                      p2.5_position = c(qnorm(0.025, sm_state$alphahat[,1], (sqrt(sm_state$V[1,1,])))), \n                      p97.5_position = c(qnorm(0.975, sm_state$alphahat[,1],(sqrt(sm_state$V[1,1,])))), \n                      mean_position = (c(sm_state$alphahat[,1])),\n                      p2.5_growth_rate = c(qnorm(0.025, sm_state$alphahat[,2], (sqrt(sm_state$V[2,2,])))), \n                      p97.5_growth_rate = c(qnorm(0.975, sm_state$alphahat[,2], (sqrt(sm_state$V[2,2,])))),\n                      p25_growth_rate = c(qnorm(0.25, sm_state$alphahat[,2], (sqrt(sm_state$V[2,2,])))), \n                      p75_growth_rate = c(qnorm(0.75, sm_state$alphahat[,2], (sqrt(sm_state$V[2,2,])))), \n                      growth_rate = (c(sm_state$alphahat[,2])),\n                      percentile_0_growth_rate =c(pnorm(0, sm_state$alphahat[,2], (sqrt(sm_state$V[2,2,])))),\n                      growth_rate = (c(sm_state$alphahat[,2])),\n                      dispersion=res$par[1], \n                      z_score_growth_rate = c(sm_state$alphahat[,2]/sqrt(sm_state$V[2,2,])))\n  }\n  return(out)\n}\n\nnbss_aseasonal(nyc$rm)",
+    "created" : 1649352384231.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "2660610450",
+    "id" : "9B36252F",
+    "lastKnownWriteTime" : 30962681237012597,
+    "last_content_update" : 1649352657496,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
