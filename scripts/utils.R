@@ -396,7 +396,7 @@ outlier_detection_par <- function(x,id,cl){
 }
 
 
-forecast <- function(nyc,uk){
+forecast <- function(nyc,uk,smooth_method='GAM'){
   nyc_time <- max(nyc$outbreak_time,na.rm=T)
   max_time <- max(uk$outbreak_time,na.rm=T)
   
@@ -405,9 +405,15 @@ forecast <- function(nyc,uk){
   ### To do so, we need to project NYC growth rates assuming a parallel trajectory to UK
   ukk <- uk[outbreak_time>nyc_time,c('outbreak_time','growth_rate','p2.5_growth_rate','p97.5_growth_rate')]
 
-  fit <- gam(growth_rate~s(outbreak_time),data=ukk)
-  fit2.5 <- gam(p2.5_growth_rate~s(outbreak_time),data=ukk)
-  fit97.5 <- gam(p97.5_growth_rate~s(outbreak_time),data=ukk)
+  if (smooth_method=='GAM'){
+    fit <- gam(growth_rate~s(outbreak_time),data=ukk)
+    fit2.5 <- gam(p2.5_growth_rate~s(outbreak_time),data=ukk)
+    fit97.5 <- gam(p97.5_growth_rate~s(outbreak_time),data=ukk)
+  } else {
+    fit <- gam(growth_rate~outbreak_time,data=ukk)
+    fit2.5 <- gam(p2.5_growth_rate~outbreak_time,data=ukk)
+    fit97.5 <- gam(p97.5_growth_rate~outbreak_time,data=ukk)
+  }
   init <- nyc[.N,c('p2.5_growth_rate','growth_rate','p97.5_growth_rate','mean_position')]
   
   last <- data.frame('outbreak_time'=nyc_time)
@@ -444,10 +450,10 @@ forecast <- function(nyc,uk){
 
 glue_ma <- function(nyc){
   ix <- which(nyc$forecast)
-  x <- nyc$raw_cases
-  x[ix] <- exp(nyc[ix,mean_position]) ## Forecast exp(mean_position)
+  x <- exp(nyc$mean_position)
+  # x[ix] <- exp(nyc[ix,mean_position]) ## Forecast exp(mean_position)
   
-  rm <- nyc$rm
+  rm <- frollmean(exp(nyc$mean_position),7,align='right',na.rm=T)
   rm[ix] <- round(frollmean(x,7,align='right',na.rm=T))[ix]
   nyc$rm <- rm
   
