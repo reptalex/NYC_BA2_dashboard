@@ -141,7 +141,7 @@ p=ggplot(xx[outbreak_time> -10],
   scale_x_continuous('Outbreak Time',limits=c(-10,35))+
   exit_fade()+
   scale_y_continuous('Growth Rate',limits=c(-0.15,0.15))+
-  ggtitle('Omicron Outbreak Tracker | Date: {frame_along}')+
+  ggtitle('BA.2 Outbreak Tracker | Date: {frame_along}')+
   scale_color_manual(values=c('black','red'))+
   scale_fill_manual(values=c('black','red'))+
   theme(legend.position=c(0.8,0.8))+
@@ -213,7 +213,7 @@ mxd=max(nyc$date) ### print to upate max_date_char, and use this to label confid
 mxd
 max_date_char <- "April 19, 2022"
 cd <- min(nyc[forecast==TRUE,date])
-x1 <- nyc[forecast==TRUE,rm[1]]
+x1 <- nyc[forecast==FALSE,rm[.N]]
 mn_ci <- nyc[.N-1,p2.5_rm]
 fc <- ggplot(nyc[forecast==TRUE],aes(Date,rm))+
   geom_line(data=nyc[forecast==FALSE & !is.na(rm) & outbreak_time>-10],lwd=2,col='red')+
@@ -230,9 +230,9 @@ fc <- ggplot(nyc[forecast==TRUE],aes(Date,rm))+
   annotate(geom='text',x=as.Date('2022-04-10'),y=3290,
            label=paste(prob,'% chance of reaching \n "medium alert" by ',max_date_char,sep=''),
            fill='white',color='black')+
-  annotate(geom='segment',x=cd+2,xend=cd+5,y=x1-20,yend=1200,color='red',lwd=2)+
+  annotate(geom='segment',x=cd,xend=cd+4,y=x1-20,yend=1200,color='red',lwd=2)+
   annotate(geom='text',x=cd+5,y=1100,
-           label='Forecast 7-day moving average',
+           label='7-day moving average',
            fill='red',color='red',bg='red')+
   annotate(geom='segment',x=mxd-1,xend=mxd-2,y=mn_ci,yend=800,color='red',lwd=2,alpha=0.2)+
   annotate(geom='text',x=mxd-2,y=750,
@@ -244,9 +244,9 @@ fc <- ggplot(nyc[forecast==TRUE],aes(Date,rm))+
   ggtitle('Forecast of New York City COVID-19 Cases over next 12 days')
 
 fc
-ggsave('figures/BA2_NYC_forecast.png',height=8,width=10)
+ggsave('figures/BA2_NYC_forecast.png',height=10,width=12)
 
 
 gr+
   geom_line(data=nyc[forecast==TRUE],lwd=2,col='red',lty=2)
-ggsave('figures/Outbreak_daily_growth_rate_comparison_with_forecast.png',height=4,width=5)
+ggsave('figures/Outbreak_daily_growth_rate_comparison_with_forecast.png',height=6,width=8)
