@@ -244,9 +244,11 @@ fc <- ggplot(nyc[forecast==TRUE],aes(Date,rm))+
   ggtitle('Forecast of New York City COVID-19 Cases over next 12 days')
 
 fc
-ggsave('figures/BA2_NYC_forecast.png',height=10,width=12)
+ggsave('figures/BA2_NYC_forecast.png',height=8,width=11)
 
 
 gr+
   geom_line(data=nyc[forecast==TRUE],lwd=2,col='red',lty=2)
 ggsave('figures/Outbreak_daily_growth_rate_comparison_with_forecast.png',height=6,width=8)
+
+save(list=ls(),file='data/BA2_forecast_workspace.Rds')
