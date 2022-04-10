@@ -45,8 +45,33 @@ gr+
 With predicted growth rates derived from extending the NYC trajectory parallel to the UK trajectory, we integrate forward in time from our current expected daily incidence, and convert the daily incidence forecasts into a the 7-day moving average forecast (dashed line with a 95% confidence intevral ribbon). Our forecast will look ahead 11 days from the last observed data point in NYC and include the probability of the NYC outbreak exceeding or dropping below the nearest thresholds for [the CDC's COVID-19 community levels](https://www.cdc.gov/coronavirus/2019-ncov/science/community-levels.html)
 
 ```{r Forecast, echo=FALSE, warning=FALSE, message=FALSE}
-fc+
+ggplot(nyc[forecast==TRUE],aes(Date,rm))+
+  geom_line(data=nyc[forecast==FALSE & !is.na(rm) & outbreak_time>-10],lwd=2,col='red')+
+  geom_line(lwd=2,lty=2,col='red')+
+  geom_bar(data=nyc[forecast==FALSE & outbreak_time > -10],aes(y=new_confirmed),col='red',fill='red',alpha=0.1,stat='identity')+
+  # geom_bar(data=nyc,aes(y=new_confirmed),stat='identity',col='red',fill=rgb(1,0,0,0.3))+
+  geom_ribbon(data=nyc[forecast==TRUE],aes(ymin=p2.5_rm,ymax=p97.5_rm),fill='red',alpha=0.2)+
+  geom_hline(yintercept = medium_alert_threshold,lwd=1)+
+  annotate(geom='text',x=as.Date('2022-03-18'),y=medium_alert_threshold+150,
+           label="Medium Alert Level Threshold",size=6)+
+  scale_y_continuous('Newly Reported Cases',limits=c(0,3900))+
+  # scale_x_continuous('Date')+
+  annotate(geom='segment',x=as.Date('2022-04-10'),xend=max(nyc$date),y=3120,yend=medium_alert_threshold)+
+  annotate(geom='text',x=as.Date('2022-04-10'),y=3290,
+           label=paste(prob,'% chance of reaching \n "medium alert" by ',max_date_char,sep=''),
+           fill='white',color='black')+
+  annotate(geom='segment',x=cd,xend=cd+4,y=x1-20,yend=1200,color='red',lwd=2)+
+  annotate(geom='text',x=cd+5,y=1100,
+           label='7-day moving average',
+           fill='red',color='red',bg='red')+
+  annotate(geom='segment',x=mxd-1,xend=mxd-2,y=mn_ci,yend=800,color='red',lwd=2,alpha=0.2)+
+  annotate(geom='text',x=mxd-2,y=750,
+           label='95% Confidence Intervals',
+           fill='red',color='red',bg='red')+
+  theme_classic(base_size=15)+
   ggtitle('Forecast of NYC COVID-19 Cases')
 ```
 
 This forecasting dashboard is designed as a regularly update of outbreak trajectories, with a transparent link between our forecasts and the underlying hypothesis that VOC-driven outbreaks have common characteristics. Like any hypothesis, ours can be rejected, and we provide `r(t)` trajectories to allow visual comparisons of observed outbreak features in relation to our hypothesis.
+
+For more info, please see[the document here](https://github.com/reptalex/NYC_BA2_dashboard/tree/main/docs). If you have any questions or comments, please post here and I'll try to respond when time permits.

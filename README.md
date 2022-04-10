@@ -20,3 +20,5 @@ With predicted growth rates derived from extending the NYC trajectory parallel t
 ![](README_files/figure-markdown_github/Forecast-1.png)
 
 This forecasting dashboard is designed as a regularly update of outbreak trajectories, with a transparent link between our forecasts and the underlying hypothesis that VOC-driven outbreaks have common characteristics. Like any hypothesis, ours can be rejected, and we provide `r(t)` trajectories to allow visual comparisons of observed outbreak features in relation to our hypothesis.
+
+For more info, please see[the document here](https://github.com/reptalex/NYC_BA2_dashboard/tree/main/docs). If you have any questions or comments, please post here and I'll try to respond when time permits.
