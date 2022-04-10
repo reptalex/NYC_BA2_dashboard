@@ -21,6 +21,7 @@ library(mgcv)
 library(gganimate)
 source("scripts/utils.R")
 load('data/BA2_forecast_workspace.Rds')
+theme_set(theme_bw(base_size=15))
 ```
 
 ## Comparing the New York City and United Kingdom BA.2 Outbreaks
