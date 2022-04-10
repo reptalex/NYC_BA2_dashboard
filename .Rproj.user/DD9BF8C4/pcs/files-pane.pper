@@ -1,9 +1,0 @@
-{
-    "path" : "~/COVID/NYC_BA2_dashboard/scripts",
-    "sortOrder" : [
-        {
-            "ascending" : true,
-            "columnIndex" : 2
-        }
-    ]
-}
